@@ -12,6 +12,18 @@ app = Flask(__name__)
 def main():
     return 'Hello World!'
 
+@app.route('/register')
+def userRegister():
+    return 'Page for login/user registration, shows form'
+
+@app.route('/login')
+def login():
+    return 'Template for user login/registration'
+
+@app.route('/logout')
+def logout():
+    return 'User taken here upon clicking log out'
+
 @app.route('/catalog')
 def catalogHome():
     return render_template('categories.html')

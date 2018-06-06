@@ -3,22 +3,26 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <nav>
   <h1>Item Catalog</h1>
-  <!-- <ul>
+  <ul>
     {% if g.user %}
       <li><span>{{ g.user['username'] }}</span>
-      <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
+      <li><a href="{{ url_for('logout') }}">Log Out</a>
     {% else %}
-      <li><a href="{{ url_for('auth.register') }}">Register</a>
-      <li><a href="{{ url_for('auth.login') }}">Log In</a>
+      <li><a href="{{ url_for('userRegister') }}">Register</a>
+      <li><a href="{{ url_for('login') }}">Log In</a>
     {% endif %}
-  </ul> -->
+  </ul>
 </nav>
-<section class="content">
+<div class="content">
   <header>
     {% block header %}{% endblock %}
   </header>
   {% for message in get_flashed_messages() %}
     <div class="flash">{{ message }}</div>
   {% endfor %}
-  {% block content %}{% endblock %}
-</section>
+  {% block content %}
+  <div>
+    Here will be categories with latest items
+  </div>
+  {% endblock %}
+</div>
