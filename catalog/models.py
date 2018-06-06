@@ -25,9 +25,9 @@ class Item(db.Model):
     category = db.Column(db.String(120), nullable=False)
     added_at = db.Column(db.String(120), nullable=False)
 
+# Set up Flask Security
 user_datastore = SQLAlchemyUserDatastore(db, User, Item)
 security = Security(app, user_datastore)
 
 # if __name__ == '__main__':
-# db.create_all(app)
 #     app.run()
