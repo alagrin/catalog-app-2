@@ -1,8 +1,7 @@
 from flask import Flask, render_template, url_for, request, redirect, flash, \
 jsonify, session as login_session, make_response, abort
 import random, string, httplib2, json, requests, os
-# from oauth2client.client import flow_from_clientsecrets
-# from oauth2client.client import FlowExchangeError
+import auth
 
 # CLIENT_ID = json.loads(open('client_secret.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Item Catalog"
@@ -15,23 +14,23 @@ def main():
 
 @app.route('/catalog')
 def catalogHome():
-    return 'This will show overall categories and latest items'
+    return render_template('categories.html')
 
-@app.route('/catalog/<str:category>')
-@app.route('/catalog/<str:category>/items')
-def categoryItems():
+@app.route('/catalog/<category>')
+@app.route('/catalog/<category>/items')
+def categoryItems(category):
     return 'This will show a category spec. items'
 
-@app.route('/catalog/<str:category>/<str:item_name>')
-def itemInfo():
+@app.route('/catalog/<category>/<item_name>')
+def itemInfo(category, item_name):
     return 'This will show item info'
 
-@app.route('/catalog/<str:item_name>/edit')
+@app.route('/catalog/<item_name>/edit')
 def editItem(item_name):
     return 'This page when logged in allows item editing'
 
-@app.route('/catalog/<str:item_name>/delete')
-def deleteItem(item_info):
+@app.route('/catalog/<item_name>/delete')
+def deleteItem(item_name):
     return 'Delete item page when logged in'
 
 @app.route('/catalog.json')
