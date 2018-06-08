@@ -2,7 +2,7 @@ from flask import Flask, render_template, url_for, request, redirect, flash, \
 jsonify, session as login_session, make_response, abort
 from flask_security import login_required
 import random, string, httplib2, json, requests, os
-# import auth
+# import auth, db_setup to create database upon running app
 
 # CLIENT_ID = json.loads(open('client_secret.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Item Catalog"

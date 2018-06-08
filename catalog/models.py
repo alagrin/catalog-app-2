@@ -1,33 +1,28 @@
-from flask import Flask, render_template
-from flask_sqlalchemy import SQLAlchemy
-from flask_security import Security, SQLAlchemyUserDatastore, UserMixin, \
-login_required, RoleMixin
-
-# Creates app
-app = Flask(__name__)
-app.config['DEBUG'] = True
-app.config['SECRET_KEY'] = 'my-super-secret-key'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///itemcatalog.db'
-
-# Creates Database connection object
-db = SQLAlchemy(app)
+from sqlalchemy import Column, Integer, String
+from db_setup import Base
+# from flask_security import Security, SQLAlchemyUserDatastore, UserMixin, \
+# login_required, RoleMixin
 
 #Definition of models
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(30), unique=True, nullable=False)
+class User(Base):
+    __tablename__ = 'users'
+    email = Column(String(120), primary_key=True, unique=True, nullable=False)
+    password = Column(String(30), nullable=False)
 
-class Item(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), nullable=False)
-    category = db.Column(db.String(120), nullable=False)
-    added_at = db.Column(db.String(120), nullable=False)
+    def __init__(self, email, password):
+        self.email = email
+        self.password = password
+
+class Item(Base):
+    __tablename__ = 'items'
+    id = Column(Integer, primary_key=True) # auto-increment
+    name = Column(String(120), nullable=False)
+    category = Column(String(120), nullable=False)
+    added_at = Column(String(120), nullable=False)
+
+# Serialize for access via JSON endpoint
 
 # Set up Flask Security
-user_datastore = SQLAlchemyUserDatastore(db, User, Item)
-security = Security(app, user_datastore)
 
-# if __name__ == '__main__':
-#     app.run()
+# user_datastore = SQLAlchemyUserDatastore(db, User, Item)
+# security = Security(app, user_datastore)
