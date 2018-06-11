@@ -2,17 +2,20 @@ from flask import Flask, render_template, url_for, request, redirect, flash, \
 jsonify, session as login_session, make_response, abort
 from flask_security import login_required
 import random, string, httplib2, json, requests, os
-# import auth
-from models import User, Item
-from db_setup import init_db, db_session
+from db_setup import Base, User, Item
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-# CLIENT_ID = json.loads(open('client_secret.json', 'r').read())['web']['client_id']
+CLIENT_ID = json.loads(open('client_secret.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Item Catalog"
 
 app = Flask(__name__)
 
-# session = db_session(session_factory)
-# s = session()
+engine = create_engine('sqlite:///itemcatalog.db')
+Base.metadata.bind = engine
+
+DBSession = sessionmaker(bind=engine)
+session = DBSession()
 
 # Views
 @app.route('/')
@@ -23,18 +26,24 @@ def main():
 def userRegister():
     return 'Page for login/user registration, shows form'
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    return 'Template for user login/registration'
+    if request.method == 'POST':
+        newUser = User(email=request.form['email'], password=request.form['password'])
+        session.add(newUser)
+        session.commit()
+        flash('User created successfully')
+        return redirect(url_for('catalogHome'))
+    else:
+        return render_template('login.html')
 
 @app.route('/logout')
 def logout():
     return 'User taken here upon clicking log out'
 
-@app.route('/catalog')
+@app.route('/catalog/')
 def catalogHome():
-    print(s.query(User).all())
-    return 'Catalog home'
+    return render_template('categories.html')
 
 @app.route('/catalog/<category>')
 @app.route('/catalog/<category>/items')
@@ -55,11 +64,10 @@ def editItem(item_name):
 def deleteItem(item_name):
     return 'Delete item page when logged in'
 
-@app.route('/catalog.json')
+@app.route('/catalog.json/')
 def jsonCatalog():
     return 'Jsonify/serialized item catalog info'
 
 if __name__ == '__main__':
-    init_db()
     app.secret_key = os.urandom(12)
     app.run(port=8000, debug=True)

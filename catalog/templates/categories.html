@@ -1,3 +1,23 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 <title>{% block title %}Public Items{% endblock %}</title>
+
+{% block content %}
+<a href="#">New Item</a>
+<div id="categories">
+    <h3>Categories</h3>
+    <ul>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+    </ul>
+</div>
+<div id="items">
+    <h3>Items</h3>
+    <ul>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+    </ul>
+</div>
+{% endblock %}

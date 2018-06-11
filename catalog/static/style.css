@@ -1,0 +1,11 @@
+.content {
+    margin: 10px 10px;
+}
+
+#categories {
+    float: left;
+}
+
+#items {
+    float: right;
+}
