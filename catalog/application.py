@@ -20,7 +20,7 @@ session = DBSession()
 # Views
 @app.route('/')
 def main():
-    return 'Hello World! This is the landing page for item catalog'
+    return 'Links for register or login'
 
 @app.route('/register', methods=['GET', 'POST'])
 def userRegister():
@@ -32,8 +32,11 @@ def login():
         newUser = User(email=request.form['email'], password=request.form['password'])
         session.add(newUser)
         session.commit()
+
+        # set login_session['email'] to email as well, provide to session/ g object
+
         flash('User created successfully')
-        return redirect(url_for('catalogHome'))
+        return redirect(url_for('catalogHome')) # will contain user_email context
     else:
         return render_template('login.html')
 
@@ -43,23 +46,46 @@ def logout():
 
 @app.route('/catalog/')
 def catalogHome():
-    return render_template('categories.html')
+    allItems = session.query(Item).limit(20).all()
+    return render_template('categories.html', allItems=allItems)
 
 @app.route('/catalog/<category>')
 @app.route('/catalog/<category>/items')
 def categoryItems(category):
-    return 'This will show a category spec. items'
+    # this method has no edit/delete options unless logged in
+    itemsByCategory = session.query(Item).filter_by(category=category).all()
+    return render_template('categories', category=category, items=itemsByCategory)
 
-@app.route('/catalog/<category>/<item_name>')
-def itemInfo(category, item_name):
-    return 'This will show item info'
+@app.route('/catalog/<category>/new', methods=['GET', 'POST'])
+def newItem(category):
+    if request.method == 'POST':
+        # TODO: adjust itemtoadd with necessary name/ added_at parameter?
+        itemToAdd = Item(name=request.form['name'], category=request.form['categories'])
+        session.add(itemToAdd)
+        session.commit()
+        flash('Item added')
+        return redirect(url_for('categoryItems'))
+    else:
+        return render_template('newitem.html', category=category)
 
-@app.route('/catalog/<item_name>/edit')
+# confirm this one below is right, need unique item w/ id to find
+@app.route('/catalog/<item_id>/edit', methods=['GET', 'POST'])
 # @login_required
-def editItem(item_name):
-    return 'This page when logged in allows item editing'
+def editItem(item_id):
+    if request.method == 'POST':
+        itemToEdit = session.query(Item).filter_by(id=item_id).one()
+        if request.form['name']:
+            itemToEdit.name = request.form['name']
+        if request.form['category']:
+            itemToEdit.category = request.form['category']
+        session.add(itemToEdit)
+        session.commit()
+        flash('Updated item info')
+        return redirect(url_for('categoryItems'))
+    else:
+        return render_template('edititem.html', id=item_id)
 
-@app.route('/catalog/<item_name>/delete')
+@app.route('/catalog/<item_name>/delete', methods=['GET', 'POST'])
 # @login_required
 def deleteItem(item_name):
     return 'Delete item page when logged in'
