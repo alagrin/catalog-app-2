@@ -13,16 +13,9 @@
     {% endif %}
   </ul>
 </nav>
-<div class="content">
-  <header>
-    {% block header %}{% endblock %}
-  </header>
   {% for message in get_flashed_messages() %}
     <div class="flash">{{ message }}</div>
   {% endfor %}
-  {% block content %}
-  <div>
-    Here will be categories with latest items
-  </div>
-  {% endblock %}
+  <div class="content">
+  {% block content %}{% endblock %}
 </div>

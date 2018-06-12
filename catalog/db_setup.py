@@ -23,12 +23,19 @@ class Item(Base):
     id = Column(Integer, primary_key=True, autoincrement=True) # auto-increment
     name = Column(String(120), nullable=False)
     category = Column(String(120), nullable=False)
-    added_at = Column(DateTime(), default=datetime.datetime.utcnow, nullable=False)
-    user_email = Column(Integer, ForeignKey('users.email'))
-    user = relationship(
-        "User", backref=backref("users", cascade="all, delete"))
+    description = Column(String(120))
+    added_at = Column(DateTime(), default=datetime.datetime.utcnow, nullable=False) #confirm its auto adding this
+    user_email = Column(String(120), ForeignKey('users.email'))
+    user = relationship("User", backref="users", cascade="all, delete")
+
+# @property # Converting data in database, create JSON object, meet API 
+# def serialize(self):
+#     """Return item data in easily serializable format"""
+#     return {
+#         'name': self.name,
+#         'category': self.category,
+#         'description': self.description
+#     }
 
 engine = create_engine('sqlite:///itemcatalog.db')
 Base.metadata.create_all(engine)
-
-# will need to serialize item info for the json endpoint

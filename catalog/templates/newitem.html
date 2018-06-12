@@ -1,11 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-<select name="categories" id="category-picker">
-    <option value="test">test</option>
-    <option value="test">test</option>
-    <option value="test">test</option>
-    <option value="test">test</option>
-    <option value="test">test</option>
-</select>
+<form action='{{ url_for('newItem', category=category) }}' method="POST">
+    <label for="name">Name:</label>
+    <input type="text" name="name" placeholder="Name">
+
+    <label for="category">Pick a category:</label>
+    <select name="categories" id="category-picker">
+        <option value="home">home</option>
+        <option value="sports">sports</option>
+        <option value="clothing">clothing</option>
+        <option value="business">business</option>
+        <option value="personal">personal</option>
+    </select>
+
+    <label for="description">Description:</label>
+    <textarea name="description" id="descrip" cols="30" rows="10" placeholder="Describe your item"></textarea>
+    <button type="submit" value="Add">Submit</button>
+</form>
 {% endblock %}

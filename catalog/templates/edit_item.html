@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action='{{ url_for('editItem', category=category, item_id=item_id) }}' method="POST">
+    <label for="name">Name:</label>
+    <input type="text" name="name" placeholder='{{item.name}}'>
+
+    <label for="category">Pick a category:</label>
+    <select name="categories" id="category-picker">
+        <option value="home">home</option>
+        <option value="sports">sports</option>
+        <option value="clothing">clothing</option>
+        <option value="business">business</option>
+        <option value="personal">personal</option>
+    </select>
+    <p>Current category is {{item.category}}</p>
+
+    <label for="description">Description:</label>
+    <textarea name="description" id="descrip" cols="30" rows="10" placeholder='{{item.description}}'></textarea>
+    <button type="submit" value="Add">Submit</button>
+</form>
+{% endblock %}

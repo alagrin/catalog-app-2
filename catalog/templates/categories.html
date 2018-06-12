@@ -3,9 +3,11 @@
 <title>{% block title %}Public Items{% endblock %}</title>
 
 {% block content %}
-<a href="#">New Item</a>
+<a href='{{ url_for('newItem') }}'>New Item</a>
+
 <div id="categories">
     <h3>Categories</h3>
+    <!-- Lists all categories, preexisting based on select in forms -->
     <ul>
         <li>1</li>
         <li>2</li>
@@ -13,7 +15,8 @@
     </ul>
 </div>
 <div id="items">
-    <h3>Items</h3>
+    <h3>Latest Items</h3>
+    <!-- All items, in order of time added (see database info) -->
     <ul>
         <li>1</li>
         <li>2</li>
