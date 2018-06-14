@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{item.name}}{% endblock %}
+
+{% block content %}
+<!-- For item chosen, display the below info -->
+{{item.name}}
+{{item.category}}
+{{item.description}}
+
+<!-- If logged in, display edit/delete options -->
+<a href="#">Edit</a>
+<a href="#">Delete</a>
+
+{% endblock %}
