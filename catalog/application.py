@@ -22,13 +22,9 @@ session = DBSession()
 # Views
 @app.route('/')
 def main():
-    return 'Links for register or login'
+    return 'Welcome to the Item Catalog!'
 
-@app.route('/register', methods=['GET', 'POST'])
-def userRegister():
-    return 'Page for login/user registration, shows form'
-
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'POST':
         newUser = User(email=request.form['email'], \
@@ -36,8 +32,9 @@ def login():
         session.add(newUser)
         session.commit()
 
-        # set login_session['email'] to email as well, provide to session/ g object
-
+        login_session['email'] = newUser.email
+        login_session['password'] = newUser.password
+        login_session['logged_in'] = True
         flash('User created successfully')
         return redirect(url_for('catalogHome')) # will contain user_email context
     else:
@@ -45,17 +42,20 @@ def login():
 
 @app.route('/logout')
 def logout():
-    return 'User taken here upon clicking log out'
+    login_session.pop('logged_in', None)
+    return redirect(url_for('main'))
 
 @app.route('/catalog/')
 def catalogHome():
     allItems = session.query(Item).limit(20).all()
+    # add categories rep to loop through and show active categories
+    # categories = session.query(Item).filter_by(category=Item.category)
     return render_template('categories.html', allItems=allItems)
 
 @app.route('/catalog/<category>/')
 @app.route('/catalog/<category>/items')
 def categoryItems(category):
-    # this method has no edit/delete options unless logged in
+    # this different endpoint necessary? trying to separte logged in views and general view
     itemsByCategory = session.query(Item).filter_by(category=category).all()
     return render_template('categories.html', category=category, \
     items=itemsByCategory)

@@ -3,25 +3,24 @@
 <title>{% block title %}Public Items{% endblock %}</title>
 
 {% block content %}
-<a href='{{ url_for('newItem') }}'>New Item</a> <!-- if logged in -->
+<a href='{{ url_for('newItem', category=category, items=items) }}'>New Item</a> <!-- if logged in -->
 
 <div id="categories">
     <h3>Categories</h3>
     <!-- Lists all categories, preexisting based on select in forms -->
     <ul>
-        <li>1</li>
-        <li>2</li>
-        <li>3</li>
+        {% for category in categories %}
+        <li>{{category.name}}</li>
+        {% endfor %}
     </ul>
 </div>
 <div id="items">
     <h3>Latest Items</h3>
     <!-- All items, in order of time added (see database info) -->
     <ul>
-        <!-- Dynamically create each name/link -->
-        <li>1</li>
-        <li>2</li>
-        <li>3</li>
+        {% for item in allItems %}
+        <li>{{item.name}}</li>
+        {% endfor %}
     </ul>
 </div>
 {% endblock %}
