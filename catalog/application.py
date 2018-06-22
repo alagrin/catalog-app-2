@@ -49,7 +49,7 @@ def logout():
 def catalogHome():
     allItems = session.query(Item).limit(20).all()
     # add categories rep to loop through and show active categories
-    # categories = session.query(Item).filter_by(category=Item.category)
+    # categories = session.query(Item).filter_by(category=category)
     return render_template('categories.html', allItems=allItems)
 
 @app.route('/catalog/<category>/')
@@ -60,7 +60,7 @@ def categoryItems(category):
     return render_template('categories.html', category=category, \
     items=itemsByCategory)
 
-@app.route('/catalog/<category>/item/new', methods=['GET', 'POST'])
+@app.route('/catalog/item/new', methods=['GET', 'POST'])
 def newItem(category):
     if request.method == 'POST':
         itemToAdd = Item(name=request.form['name'], \
@@ -71,7 +71,7 @@ def newItem(category):
         flash('Item added')
         return redirect(url_for('categoryItems', category=category))
     else:
-        return render_template('newitem.html', category=category)
+        return render_template('newitem.html') #category=category)
 
 # confirm this one below is right, need unique item w/ id to find
 @app.route('/catalog/<category>/<int:item_id>/edit', methods=['GET', 'POST'])

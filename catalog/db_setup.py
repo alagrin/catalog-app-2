@@ -20,7 +20,7 @@ class User(Base):
 class Item(Base):
     __tablename__ = 'items'
 
-    id = Column(Integer, primary_key=True, autoincrement=True) # auto-increment
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(120), nullable=False)
     category = Column(String(120), nullable=False)
     description = Column(String(120))
