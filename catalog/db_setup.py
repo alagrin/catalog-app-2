@@ -28,14 +28,14 @@ class Item(Base):
     user_email = Column(String(120), ForeignKey('users.email'))
     user = relationship("User", backref="users", cascade="all, delete")
 
-# @property # Converting data in database, create JSON object, meet API 
-# def serialize(self):
-#     """Return item data in easily serializable format"""
-#     return {
-#         'name': self.name,
-#         'category': self.category,
-#         'description': self.description
-#     }
+@property # Converting data in database, create JSON object, meet API 
+def serialize(self):
+    """Return item data in easily serializable format"""
+    return {
+        'name': self.name,
+        'category': self.category,
+        'description': self.description
+    }
 
 engine = create_engine('sqlite:///itemcatalog.db')
 Base.metadata.create_all(engine)

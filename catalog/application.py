@@ -22,7 +22,7 @@ session = DBSession()
 # Views
 @app.route('/')
 def main():
-    return 'Welcome to the Item Catalog!'
+    return render_template('base.html') # adjust to add quick info/ direct to login
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -50,7 +50,7 @@ def catalogHome():
     allItems = session.query(Item).limit(20).all()
     # add categories rep to loop through and show active categories
     # categories = session.query(Item).filter_by(category=category)
-    return render_template('categories.html', allItems=allItems)
+    return render_template('categories.html', items=allItems)
 
 @app.route('/catalog/<category>/')
 @app.route('/catalog/<category>/items')
@@ -60,7 +60,7 @@ def categoryItems(category):
     return render_template('categories.html', category=category, \
     items=itemsByCategory)
 
-@app.route('/catalog/item/new', methods=['GET', 'POST'])
+@app.route('/catalog/<category>/item/new', methods=['GET', 'POST'])
 def newItem(category):
     if request.method == 'POST':
         itemToAdd = Item(name=request.form['name'], \
@@ -71,7 +71,7 @@ def newItem(category):
         flash('Item added')
         return redirect(url_for('categoryItems', category=category))
     else:
-        return render_template('newitem.html') #category=category)
+        return render_template('newitem.html', category='None')
 
 # confirm this one below is right, need unique item w/ id to find
 @app.route('/catalog/<category>/<int:item_id>/edit', methods=['GET', 'POST'])
@@ -107,7 +107,9 @@ def deleteItem(category, item_id):
 
 @app.route('/catalog.json/')
 def jsonCatalog():
-    return 'Jsonify/serialized item catalog info'
+    pass
+    # items = session.query(Item).all()
+    # return jsonify(items)
 
 if __name__ == '__main__':
     app.secret_key = os.urandom(12)
