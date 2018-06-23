@@ -3,14 +3,14 @@
 <title>{% block title %}Public Items{% endblock %}</title>
 
 {% block content %}
-<a href='{{ url_for('newItem', category=category, items=items) }}'>New Item</a> <!-- if logged in -->
+<a href='{{ url_for('newItem', category=category) }}'>New Item</a> <!-- if logged in -->
 
 <div id="categories">
     <h3>Categories</h3>
-    <!-- Lists all categories, preexisting based on select in forms -->
-    <ul>
+    <!-- Lists all categories, preexisting based on select in forms, currently hardcoded -->
+    <ul style="list-style-type: none;">
         {% for category in categories %}
-        <li>{{category.name}}</li>
+        <li><a href="#">{{category}}</a></li>
         {% endfor %}
     </ul>
 </div>
@@ -19,7 +19,7 @@
     <!-- All items, in order of time added (see database info) -->
     <ul>
         {% for item in items %}
-        <li>{{item.name}}</li>
+        <li><a href='{{ url_for('itemInfo', item_id=item.id, category=item.category) }}'>{{item.name}}</a></li>
         {% endfor %}
     </ul>
 </div>

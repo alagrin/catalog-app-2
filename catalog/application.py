@@ -1,6 +1,6 @@
 from flask import Flask, render_template, url_for, request, redirect, flash, \
 jsonify, session as login_session, make_response, abort
-from flask_security import login_required
+# from flask_security import login_required
 import random, string, httplib2, json, requests, os
 from db_setup import Base, User, Item
 from sqlalchemy import create_engine
@@ -50,18 +50,28 @@ def catalogHome():
     allItems = session.query(Item).limit(20).all()
     # add categories rep to loop through and show active categories
     # categories = session.query(Item).filter_by(category=category)
-    return render_template('categories.html', items=allItems)
+    categories = ['home', 'sports', 'clothing', 'business', 'personal']
+    return render_template('categories.html', items=allItems, categories=categories)
 
 @app.route('/catalog/<category>/')
-@app.route('/catalog/<category>/items')
+@app.route('/catalog/<category>/items/')
 def categoryItems(category):
     # this different endpoint necessary? trying to separte logged in views and general view
     itemsByCategory = session.query(Item).filter_by(category=category).all()
     return render_template('categories.html', category=category, \
     items=itemsByCategory)
 
-@app.route('/catalog/<category>/item/new', methods=['GET', 'POST'])
-def newItem(category):
+@app.route('/catalog/<category>/<int:item_id>')
+def itemInfo(category, item_id):
+    try:
+        item = session.query(Item).filter_by(id=item_id).one()
+        if item:
+            return render_template('show_item.html', category=category, item=item)
+    except:
+        return 'Item not found', 404
+
+@app.route('/catalog/item/new', methods=['GET', 'POST']) #took out <category> in link/function, categ=categ in if
+def newItem():
     if request.method == 'POST':
         itemToAdd = Item(name=request.form['name'], \
         category=request.form['categories'], description=\
@@ -69,9 +79,10 @@ def newItem(category):
         session.add(itemToAdd)
         session.commit()
         flash('Item added')
-        return redirect(url_for('categoryItems', category=category))
+        # return redirect(url_for('categoryItems', item=itemToAdd, category=itemToAdd.category))
+        return redirect(url_for('catalogHome'))
     else:
-        return render_template('newitem.html', category='None')
+        return render_template('newitem.html')
 
 # confirm this one below is right, need unique item w/ id to find
 @app.route('/catalog/<category>/<int:item_id>/edit', methods=['GET', 'POST'])
@@ -103,7 +114,7 @@ def deleteItem(category, item_id):
         flash('Item deleted')
         return redirect(url_for('categoryItems', category=category))
     else:
-        return render_template('delete_item.html', item=itemToDelete)
+        return render_template('delete_item.html', item=itemToDelete, item_id=item_id, category=category)
 
 @app.route('/catalog.json/')
 def jsonCatalog():
