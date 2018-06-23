@@ -4,7 +4,7 @@
 
 {% block content %}
 <a href='{{ url_for('newItem', category=category) }}'>New Item</a> <!-- if logged in -->
-
+<div class="container"></div>
 <div id="categories">
     <h3>Categories</h3>
     <!-- Lists all categories, preexisting based on select in forms, currently hardcoded -->
@@ -22,5 +22,6 @@
         <li><a href='{{ url_for('itemInfo', item_id=item.id, category=item.category) }}'>{{item.name}}</a></li>
         {% endfor %}
     </ul>
+</div>
 </div>
 {% endblock %}

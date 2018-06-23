@@ -5,7 +5,7 @@
     <h1>Are you sure you want to delete {{item.name}} ?</h1>
     <hr>
     <form action='{{ url_for('deleteItem', item=item, category=category, item_id=item_id) }}' method="POST">
-        <button type="submit" value="Remove">Delete</button>
+        <a class="btn btn-danger">Delete</a>
         <a href='{{ url_for('catalogHome') }}'>Cancel</a>
     </form>     
 </div>

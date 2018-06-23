@@ -70,7 +70,7 @@ def itemInfo(category, item_id):
             print('item found')
             return render_template('show_item.html', category=category, item=item)
     except Exception as e:
-	    return(str(e))
+	    return(str(e)) #TODO better way to do this??
 
 @app.route('/catalog/item/new', methods=['GET', 'POST']) #took out <category> in link/function, categ=categ in if
 def newItem():
