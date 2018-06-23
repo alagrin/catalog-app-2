@@ -4,7 +4,12 @@
 {% block content %}
 <div>
     <h1>Name: {{item.name}}</h1>
-    <h3>Category: {{item.category}}</h3>
-    <p>Description: {{item.description}}</p>
+    <div>
+        <p>Category: {{item.category}}</p>
+        <p>Description: {{item.description}}</p>
+    </div>
+    <hr>
+    <a class="btn btn-info" href='{{ url_for('editItem', item=item, category=category, item_id=item.id) }}'>Edit</a>
+    <a class="btn btn-danger" href='{{ url_for('deleteItem', item=item, category=category, item_id=item.id) }}'>Delete</a>
 </div>
 {% endblock %}

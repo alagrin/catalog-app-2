@@ -48,7 +48,7 @@ def logout():
 @app.route('/catalog/')
 def catalogHome():
     allItems = session.query(Item).limit(20).all()
-    # add categories rep to loop through and show active categories
+    # TODO: add categories rep to loop through and show active categories
     # categories = session.query(Item).filter_by(category=category)
     categories = ['home', 'sports', 'clothing', 'business', 'personal']
     return render_template('categories.html', items=allItems, categories=categories)
@@ -63,12 +63,14 @@ def categoryItems(category):
 
 @app.route('/catalog/<category>/<int:item_id>')
 def itemInfo(category, item_id):
+    # TODO: Suddenly item info won't work, item found but template doesn't load
     try:
         item = session.query(Item).filter_by(id=item_id).one()
         if item:
+            print('item found')
             return render_template('show_item.html', category=category, item=item)
-    except:
-        return 'Item not found', 404
+    except Exception as e:
+	    return(str(e))
 
 @app.route('/catalog/item/new', methods=['GET', 'POST']) #took out <category> in link/function, categ=categ in if
 def newItem():
