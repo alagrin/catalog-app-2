@@ -7,6 +7,15 @@
 <div class="container"></div>
 <div id="categories">
     <h3>Categories</h3>
+    <form action='{{ url_for('categoryItems', category=category) }}' method="POST">
+        <select name="categories" id="categoryPicker" class="form-control">
+            <option value="home">Home</option>
+            <option value="sports">Sports</option>
+            <option value="clothing">Clothing</option>
+            <option value="business">Business</option>
+            <option value="personal">Personal</option>
+        </select>
+    </form>
     <!-- Lists all categories, preexisting based on select in forms, currently hardcoded -->
     <ul style="list-style-type: none;">
         {% for category in categories %}

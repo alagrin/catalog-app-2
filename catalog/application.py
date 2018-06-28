@@ -1,6 +1,7 @@
 from flask import Flask, render_template, url_for, request, redirect, flash, \
 jsonify, session as login_session, make_response, abort
 # from flask_security import login_required
+from helpers import filterByCategory
 import random, string, httplib2, json, requests, os
 from db_setup import Base, User, Item
 from sqlalchemy import create_engine
@@ -36,6 +37,7 @@ def login():
         login_session['password'] = newUser.password
         login_session['logged_in'] = True
         flash('User created successfully')
+        print("user added")
         return redirect(url_for('catalogHome')) # will contain user_email context
     else:
         return render_template('login.html')
@@ -45,19 +47,23 @@ def logout():
     login_session.pop('logged_in', None)
     return redirect(url_for('main'))
 
-@app.route('/catalog/')
+@app.route('/catalog/', methods = ['GET', 'POST'])
 def catalogHome():
+    categories = ['home', 'sports', 'clothing', 'business', 'personal']
     allItems = session.query(Item).limit(20).all()
     # TODO: add categories rep to loop through and show active categories
     # categories = session.query(Item).filter_by(category=category)
-    categories = ['home', 'sports', 'clothing', 'business', 'personal']
     return render_template('categories.html', items=allItems, categories=categories)
 
 @app.route('/catalog/<category>/')
 @app.route('/catalog/<category>/items/')
 def categoryItems(category):
-    # this different endpoint necessary? trying to separte logged in views and general view
+    # this different endpoint necessary? trying to separate logged in views and general view
     itemsByCategory = session.query(Item).filter_by(category=category).all()
+    if request.method == 'POST':
+        select = request.form['categories']
+        if select == 'Home':
+            print(select)
     return render_template('categories.html', category=category, \
     items=itemsByCategory)
 
@@ -67,10 +73,9 @@ def itemInfo(category, item_id):
     try:
         item = session.query(Item).filter_by(id=item_id).one()
         if item:
-            print('item found')
             return render_template('show_item.html', category=category, item=item)
     except Exception as e:
-	    return(str(e)) #TODO better way to do this??
+	    return(str(e)) #TODO better way to do this?
 
 @app.route('/catalog/item/new', methods=['GET', 'POST']) #took out <category> in link/function, categ=categ in if
 def newItem():
@@ -86,7 +91,6 @@ def newItem():
     else:
         return render_template('newitem.html')
 
-# confirm this one below is right, need unique item w/ id to find
 @app.route('/catalog/<category>/<int:item_id>/edit', methods=['GET', 'POST'])
 # @login_required
 def editItem(category, item_id):
