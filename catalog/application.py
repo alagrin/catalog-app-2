@@ -59,13 +59,14 @@ def catalogHome():
 @app.route('/catalog/<category>/items/')
 def categoryItems(category):
     # this different endpoint necessary? trying to separate logged in views and general view
-    itemsByCategory = session.query(Item).filter_by(category=category).all()
+    items = session.query(Item).limit(20).all()
     if request.method == 'POST':
-        select = request.form['categories']
-        if select == 'Home':
+        select = request.form['category']
+        if select:
             print(select)
-    return render_template('categories.html', category=category, \
-    items=itemsByCategory)
+    else:
+        return render_template('categories.html', category=category, \
+        items=items)
 
 @app.route('/catalog/<category>/<int:item_id>')
 def itemInfo(category, item_id):
