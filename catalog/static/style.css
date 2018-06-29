@@ -1,11 +1,28 @@
+a, a:hover, a:focus {
+    text-decoration: none !important;
+}
+
+#title {
+    margin-left: 20px;
+}
+
+#loginBtn {
+    margin-left: 100px;
+}
+
 .content {
     margin: 10px 10px;
 }
 
 #categories {
+    width: 30%;
     float: left;
+    border-right: 5px solid grey;
+    margin-right: 20px;
 }
 
 #items {
-    float: right;
+    width: 40%;
+    float: left;
+    margin-left: 20px;
 }

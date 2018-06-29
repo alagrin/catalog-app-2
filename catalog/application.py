@@ -4,7 +4,7 @@ jsonify, session as login_session, make_response, abort
 from helpers import filterByCategory
 import random, string, httplib2, json, requests, os
 from db_setup import Base, User, Item
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 
 CLIENT_ID = json.loads(open('client_secret.json', 'r').read())\
@@ -23,10 +23,11 @@ session = DBSession()
 # Views
 @app.route('/')
 def main():
-    return render_template('base.html') # adjust to add quick info/ direct to login
+    return render_template('base.html')
 
 @app.route('/login', methods=['GET','POST'])
 def login():
+    # session.rollback()
     if request.method == 'POST':
         newUser = User(email=request.form['email'], \
         password=request.form['password'])
@@ -50,18 +51,20 @@ def logout():
 @app.route('/catalog/', methods = ['GET', 'POST'])
 def catalogHome():
     categories = ['home', 'sports', 'clothing', 'business', 'personal']
-    allItems = session.query(Item).limit(20).all()
+    allItems = session.query(Item).order_by(desc(Item.added_at)).limit(20).all()
+    totalItems = session.query(Item).count()
     # TODO: add categories rep to loop through and show active categories
     # categories = session.query(Item).filter_by(category=category)
-    return render_template('categories.html', items=allItems, categories=categories)
+    return render_template('categories.html', items=allItems, categories=categories, count=totalItems)
 
 @app.route('/catalog/<category>/')
 @app.route('/catalog/<category>/items/')
 def categoryItems(category):
     # this different endpoint necessary? trying to separate logged in views and general view
     itemsByCategory = session.query(Item).filter_by(category=category).all()
+    itemCount = session.query(Item).filter_by(category=category).count()
     return render_template('categories.html', category=category, \
-    items=itemsByCategory)
+    items=itemsByCategory, count=itemCount)
 
 @app.route('/catalog/<category>/<int:item_id>')
 def itemInfo(category, item_id):
@@ -120,9 +123,8 @@ def deleteItem(category, item_id):
 
 @app.route('/catalog.json/')
 def jsonCatalog():
-    pass
-    # items = session.query(Item).all()
-    # return jsonify(items)
+    items = session.query(Item).all()
+    return jsonify(Items=[i.serialize for i in items])
 
 if __name__ == '__main__':
     app.secret_key = os.urandom(12)

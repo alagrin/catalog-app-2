@@ -1,34 +1,39 @@
 {% extends "base.html" %}
 
-{% block title %}Categories- Public Items{% endblock %}
+{% block title %}{{category}} (Public Items){% endblock %}
 {% block head %}
   {{ super() }}
   <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 {% endblock %}
 
 {% block content %}
-<a href='{{ url_for('newItem', category=category) }}'>New Item</a> <!-- if logged in -->
-<div class="container"></div>
+<div class="container">
+    <a href='{{ url_for('newItem', category=category) }}'>New Item</a> <!-- if logged in -->
+</div>
 <div id="categories">
-    <h3>Categories</h3>
-    <!-- Lists all categories, preexisting based on select in forms, currently hardcoded -->
-    <ul style="list-style-type: none;">
+    {% if category %}
+      <h3>{{category}}</h3>
+    {% else %}
+      <h3>Categories</h3>
+    {% endif %}
+    <!-- Lists all categories currently hardcoded as a list in app.py -->
+    <ul class="list-unstyled">
         {% for category in categories %}
         <li><a href='{{ url_for('categoryItems', category=category) }}'>{{category}}</a></li>
         {% endfor %}
     </ul>
 </div>
 <div id="items">
-    <h3>Latest Items</h3>
-    <!-- All items, in order of time added (see database info) -->
-    <ul>
+    <h3>Latest Items ({{count}})</h3>
+    <!-- Lists items, in order of time added (see database info) -->
+    <ul class="list-unstyled">
         {% for item in items %}
         <li><a href='{{ url_for('itemInfo', item_id=item.id, category=item.category) }}'>{{item.name}}</a>({{item.category}})</li>
         {% endfor %}
     </ul>
 </div>
 </div>
-<script>
+<!-- <script>
     $(document).ready(function() {
     $('#categoryPicker').change(function(e) {
         alert($(this).find("option:selected").attr('value'));
@@ -37,5 +42,5 @@
         updateList(e.target.value);
     });
 });
-</script>
+</script> -->
 {% endblock %}

@@ -2,20 +2,26 @@
 
 {% block content %}
 <form action='{{ url_for('newItem', category=category, item=item) }}' method="POST">
-    <label for="name">Name:</label>
-    <input type="text" name="name" placeholder="Name">
-
-    <label for="category">Pick a category:</label>
-    <select name="categories" id="category-picker">
-        <option value="home">home</option>
-        <option value="sports">sports</option>
-        <option value="clothing">clothing</option>
-        <option value="business">business</option>
-        <option value="personal">personal</option>
-    </select>
-
-    <label for="description">Description:</label>
-    <textarea name="description" id="descrip" cols="30" rows="10" placeholder="Describe your item"></textarea>
-    <button type="submit" value="Add">Submit</button>
+    <div class="form-group">
+    <div class="form-group">
+        <label for="name">Item name:</label>
+        <input type="text" class="form-control" name="name" placeholder="Name" required>
+    </div>
+    <div class="form-group">
+        <label for="category">Pick a category:</label>
+        <select class="form-control" name="categories" id="category-picker" required>
+            <option value="home">home</option>
+            <option value="sports">sports</option>
+            <option value="clothing">clothing</option>
+            <option value="business">business</option>
+            <option value="personal">personal</option>
+        </select>
+    </div>  
+    <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea class="form-control" name="description" id="descrip" rows="3" placeholder="Describe your item" required></textarea>
+    </div>
+    <button class="btn btn-primary" type="submit">Submit</button>
+    </div>
 </form>
 {% endblock %}

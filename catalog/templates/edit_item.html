@@ -2,21 +2,25 @@
 {% block title %}{{item.name}}{% endblock %}
 {% block content %}
 <form action='{{ url_for('editItem', category=category, item_id=item_id) }}' method="POST">
-    <label for="name">Name:</label>
-    <input type="text" name="name" placeholder='{{item.name}}'>
-
-    <label for="category">Pick a category:</label>
-    <select name="categories" id="category-picker">
-        <option value="home">home</option>
-        <option value="sports">sports</option>
-        <option value="clothing">clothing</option>
-        <option value="business">business</option>
-        <option value="personal">personal</option>
-    </select>
-    <p>Current category is {{item.category}}</p>
-
-    <label for="description">Description:</label>
-    <textarea name="description" id="descrip" cols="30" rows="10" placeholder='{{item.description}}'></textarea>
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <input class="form-control" type="text" name="name" placeholder='{{item.name}}'>
+    </div>
+    <div class="form-group">
+        <label for="category">Pick a category:</label>
+        <select class="form-control" name="categories" id="category-picker">
+            <option value="home">home</option>
+            <option value="sports">sports</option>
+            <option value="clothing">clothing</option>
+            <option value="business">business</option>
+            <option value="personal">personal</option>
+        </select>
+    </div>
+    <p class="text-info">(Current category is {{item.category}})</p>
+    <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea class="form-control" name="description" id="descrip" rows="3" placeholder='{{item.description}}'></textarea>
+    </div>
     <a class="btn btn-success">Submit</a>
 </form>
 {% endblock %}
