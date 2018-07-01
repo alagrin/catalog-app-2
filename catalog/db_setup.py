@@ -15,6 +15,9 @@ class User(Base):
     def __init__(self, email, password):
         self.email = email
         self.password = password
+    
+    def get_user_email(self):
+        return self.email
 
 
 class Item(Base):

@@ -1,11 +1,12 @@
 from flask import Flask, render_template, url_for, request, redirect, flash, \
 jsonify, session as login_session, make_response, abort
-# from flask_security import login_required
 from helpers import filterByCategory
 import random, string, httplib2, json, requests, os
 from db_setup import Base, User, Item
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import FlowExchangeError
 
 CLIENT_ID = json.loads(open('client_secret.json', 'r').read())\
 ['web']['client_id']
@@ -28,6 +29,10 @@ def main():
 @app.route('/login', methods=['GET','POST'])
 def login():
     # session.rollback()
+    # state = ''.join(random.choice(
+    #     string.ascii_uppercase + string.digits) for x in xrange(32))
+    # login_session['state'] = state    Will add STATE=state as well
+
     if request.method == 'POST':
         newUser = User(email=request.form['email'], \
         password=request.form['password'])
@@ -125,6 +130,15 @@ def deleteItem(category, item_id):
 def jsonCatalog():
     items = session.query(Item).all()
     return jsonify(Items=[i.serialize for i in items])
+
+# @app.route('/gconnect', methods=['POST'])
+# def gconnect():
+#     if request.args.get('state') != login_session['state']:
+#         response = make_response(json.dumps('Invalid state parameter.'), 401)
+#         response.headers['Content-Type'] = 'application/json'
+#         return response
+#     access_token = request.data
+#     print("access token received as {}".format(access_token))
 
 if __name__ == '__main__':
     app.secret_key = os.urandom(12)
