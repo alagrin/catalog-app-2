@@ -1,6 +1,6 @@
 from flask import Flask, render_template, url_for, request, redirect, flash, \
 jsonify, session as login_session, make_response, abort
-from helpers import gen_random_string
+from helpers import gen_random_string, login_required
 import random, string, httplib2, json, requests, os
 from db_setup import Base, User, Item
 from sqlalchemy import create_engine, desc
@@ -81,6 +81,7 @@ def itemInfo(category, item_id):
 	    return(str(e)) #TODO better way to do this?
 
 @app.route('/catalog/item/new', methods=['GET', 'POST']) #took out <category> in link/function, categ=categ in if
+@login_required
 def newItem():
     if request.method == 'POST':
         itemToAdd = Item(name=request.form['name'], \
