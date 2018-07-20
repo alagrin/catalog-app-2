@@ -55,7 +55,7 @@ def logout():
 
 @app.route('/catalog/', methods = ['GET', 'POST'])
 def catalogHome():
-    categories = ['home', 'sports', 'clothing', 'business', 'personal'] #adjust this/ clean up
+    categories = ['home', 'sports', 'clothing', 'business', 'personal'] #adjust this
     allItems = session.query(Item).order_by(desc(Item.added_at)).limit(20).all()
     totalItems = session.query(Item).count()
     # TODO: add categories rep to loop through and show active categories
@@ -78,7 +78,7 @@ def itemInfo(category, item_id):
         if item:
             return render_template('show_item.html', category=category, item=item)
     except Exception as e:
-	    return(str(e)) #TODO better way to do this?
+	    return(str(e))
 
 @app.route('/catalog/item/new', methods=['GET', 'POST']) #took out <category> in link/function, categ=categ in if
 @login_required
@@ -116,6 +116,7 @@ def editItem(category, item_id):
 @app.route('/catalog/<category>/<item_id>/delete', methods=['GET', 'POST'])
 def deleteItem(category, item_id):
     itemToDelete = session.query(Item).filter_by(id=item_id).one()
+    # print('x' + request.method + 'x')
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
@@ -131,6 +132,7 @@ def jsonCatalog():
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+    print('gconnect running')
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -235,4 +237,4 @@ def gdisconnect():
 
 if __name__ == '__main__':
     app.secret_key = os.urandom(12)
-    app.run(port=8000, debug=True)
+    app.run(port=8080, debug=True)

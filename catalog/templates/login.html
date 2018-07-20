@@ -14,19 +14,20 @@
             <input class="form-control" type="text" name="password" required>
         </div>
         <button class="btn btn-info" name="Submit" value="Submit">Submit</button>
+        <div id="signinButton">
+            <span class="g-signin"
+            data-scope="openid email"
+            data-clientid="671079066165-48ap8656ekipr5e8jekciii7vsm7s446.apps.googleusercontent.com"
+            data-redirecturi="postmessage"
+            data-accesstype="offline"
+            data-cookiepolicy="single_host_origin"
+            data-callback= "signInCallback"
+            data-approvalprompt="force">
+            </span>
+        </div>
     </form>
 </div>
-    <div id="signinButton">
-        <span class="g-signin"
-        data-scope="openid email"
-        data-clientid="671079066165-48ap8656ekipr5e8jekciii7vsm7s446.apps.googleusercontent.com"
-        data-redirecturi="postmessage"
-        data-accesstype="offline"
-        data-cookiepolicy="single_host_origin"
-        data-callback= "signInCallback"
-        data-approvalprompt="force">
-        </span>
-    </div>
+    
   <div id="result"></div>
   <!-- Result of google oauth call, should flash on page, redirect to catalog of this user, now added to db/ login_session -->
   <script>
