@@ -4,7 +4,7 @@
 {% block content %}
 <div class="form-group">
     <h3 class="text-center">Login</h3>
-    <form action='{{url_for('login', STATE=STATE)}}' method="POST">
+    <!-- <form action='{{url_for('login', STATE=STATE)}}' method="POST">
         <div class="form-group" id="email">
             <label for="email">Email:</label>
             <input class="form-control" type="text" name="email" required>
@@ -14,33 +14,30 @@
             <input class="form-control" type="text" name="password" required>
         </div>
         <button class="btn btn-info" name="Submit" value="Submit">Submit</button>
-        <div id="signinButton">
-            <span class="g-signin"
-            data-scope="openid email"
-            data-clientid="671079066165-48ap8656ekipr5e8jekciii7vsm7s446.apps.googleusercontent.com"
-            data-redirecturi="postmessage"
-            data-accesstype="offline"
-            data-cookiepolicy="single_host_origin"
-            data-callback= "signInCallback"
-            data-approvalprompt="force">
-            </span>
-        </div>
-    </form>
+    </form> -->
+    <div id="signinButton">
+        <span class="g-signin"
+        data-scope="openid email"
+        data-clientid="671079066165-48ap8656ekipr5e8jekciii7vsm7s446.apps.googleusercontent.com"
+        data-redirecturi="postmessage"
+        data-accesstype="offline"
+        data-cookiepolicy="single_host_origin"
+        data-callback= "signInCallback"
+        data-approvalprompt="force">
+        </span>
+    </div>
 </div>
     
   <div id="result"></div>
   <!-- Result of google oauth call, should flash on page, redirect to catalog of this user, now added to db/ login_session -->
   <script>
     function signInCallback(authresult) {
-        console.log('signin run');
+        // console.log('signin run');
         if (authresult['code']) {
             $('#signinButton').attr('style', 'display: none');
-            // send one time use code to server, if responds
-            // write 'login successful' to page and back to main
-            // rooms page
             $.ajax({
                 type: 'POST',
-                url: '/gconnect?state={{STATE}}',
+                url: '/gconnect?state={{state}}',
                 processData: false,
                 contentType: 'application/octet-stream; charset=utf-8',
                 data: authresult['code'],

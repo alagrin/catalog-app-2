@@ -21,17 +21,21 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-# Views
+def setState():
+    valid = (string.ascii_letters, string.digits, ':*&^')
+    state = gen_random_string(valid, 32)
+    login_session['state'] = state
+    return state
+
 @app.route('/')
 def main():
-    return render_template('base.html')
+    state = setState()
+    return render_template('base.html', state=state)
 
 @app.route('/login', methods=['GET','POST'])
 def login():
     # session.rollback()
-    valid = (string.ascii_letters, string.digits, ':*&^') # for google login
-    state = gen_random_string(valid, 32) # set state to the result of the func above
-    login_session['state'] = state # passing value of state to the login_session- preventing CSF attacks
+    state = setState()
 
     if request.method == 'POST':
         newUser = User(email=request.form['email'], \
@@ -44,9 +48,9 @@ def login():
         login_session['logged_in'] = True
         flash('User created successfully')
         print("user added")
-        return redirect(url_for('catalogHome')) # will contain user_email context
+        return redirect(url_for('catalogHome', state=state))
     else:
-        return render_template('login.html', STATE=state)
+        return render_template('login.html', state=state)
 
 @app.route('/logout')
 def logout():
@@ -55,12 +59,12 @@ def logout():
 
 @app.route('/catalog/', methods = ['GET', 'POST'])
 def catalogHome():
+    # state = setState()
     categories = ['home', 'sports', 'clothing', 'business', 'personal'] #adjust this
     allItems = session.query(Item).order_by(desc(Item.added_at)).limit(20).all()
     totalItems = session.query(Item).count()
-    # TODO: add categories rep to loop through and show active categories
-    # categories = session.query(Item).filter_by(category=category)
-    return render_template('categories.html', items=allItems, categories=categories, count=totalItems)
+    return render_template('categories.html', items=allItems, categories= \
+    categories, count=totalItems)
 
 @app.route('/catalog/<category>/')
 @app.route('/catalog/<category>/items/')
@@ -132,13 +136,11 @@ def jsonCatalog():
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
-    print('gconnect running')
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
     authCode = request.data
-    print("access token received as {}".format(authCode))
 
     try:
         # Upgrade the authorization code into a credentials object
@@ -176,7 +178,6 @@ def gconnect():
     if result['issued_to'] != CLIENT_ID:
         response = make_response(
             json.dumps("Token's client ID does not match app's."), 401)
-        print ("Token's client ID does not match app's.")
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -186,6 +187,7 @@ def gconnect():
         response = make_response(json.dumps('Current user is already connected.'),
                                  200)
         response.headers['Content-Type'] = 'application/json'
+        login_session['logged_in'] = True
         return response
 
     # Store the access token in the session for later use.

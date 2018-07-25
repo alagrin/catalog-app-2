@@ -16,7 +16,6 @@
     {% else %}
       <h3>Categories</h3>
     {% endif %}
-    <!-- Lists all categories currently hardcoded as a list in app.py -->
     <ul class="list-unstyled">
         {% for category in categories %}
         <li><a href='{{ url_for('categoryItems', category=category) }}'>{{category}}</a></li>
@@ -25,7 +24,6 @@
 </div>
 <div id="items">
     <h3>Latest Items ({{count}})</h3>
-    <!-- Lists items, in order of time added (see database info) -->
     <ul class="list-unstyled">
         {% for item in items %}
         <li><a href='{{ url_for('itemInfo', item_id=item.id, category=item.category) }}'>{{item.name}}</a>({{item.category}})</li>
@@ -33,14 +31,4 @@
     </ul>
 </div>
 </div>
-<!-- <script>
-    $(document).ready(function() {
-    $('#categoryPicker').change(function(e) {
-        alert($(this).find("option:selected").attr('value'));
-        category = $(this).find("option:selected").attr('value');
-        console.log(e.target.value);
-        updateList(e.target.value);
-    });
-});
-</script> -->
 {% endblock %}
