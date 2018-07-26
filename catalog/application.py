@@ -68,6 +68,7 @@ def logout():
 
 @app.route('/catalog/', methods=['GET', 'POST'])
 def catalogHome():
+    '''Displays all items present in the item catalog'''
     state = setState()
     categories = ['home', 'sports', 'clothing', 'business', 'personal']
     allItems = session.query(Item).order_by(
@@ -83,6 +84,7 @@ def catalogHome():
 @app.route('/catalog/<category>/')
 @app.route('/catalog/<category>/items/')
 def categoryItems(category):
+    '''Displays categorized items'''
     itemsByCategory = session.query(Item).filter_by(category=category).all()
     itemCount = session.query(Item).filter_by(category=category).count()
     return render_template('categories.html',
@@ -93,6 +95,7 @@ def categoryItems(category):
 
 @app.route('/catalog/<category>/<int:item_id>')
 def itemInfo(category, item_id):
+    '''Checks if item exists and then shows the info for it'''
     try:
         item = session.query(Item).filter_by(id=item_id).one()
         if item:
@@ -106,6 +109,7 @@ def itemInfo(category, item_id):
 @app.route('/catalog/item/new', methods=['GET', 'POST'])
 @login_required
 def newItem():
+    '''Adds a new item to the database'''
     state = setState()
     if request.method == 'POST':
         itemToAdd = Item(name=request.form['name'],
@@ -125,6 +129,7 @@ def newItem():
 @app.route('/catalog/<category>/<int:item_id>/edit', methods=['GET', 'POST'])
 @login_required
 def editItem(category, item_id):
+    '''Allows user to edit item, only if authorized for that item'''
     state = setState()
     itemToEdit = session.query(Item).filter_by(id=item_id).one()
     if request.method == 'POST':
@@ -153,6 +158,7 @@ def editItem(category, item_id):
 @app.route('/catalog/<category>/<item_id>/delete', methods=['GET', 'POST'])
 @login_required
 def deleteItem(category, item_id):
+    '''Allows user to delete an item if authorized to'''
     state = setState()
     itemToDelete = session.query(Item).filter_by(id=item_id).one()
     if request.method == 'POST':
@@ -174,10 +180,12 @@ def deleteItem(category, item_id):
 
 @app.route('/catalog.json/')
 def jsonCatalog():
+    '''Returns JSON for all items in catalog'''
     items = session.query(Item).all()
     return jsonify(Items=[i.serialize for i in items])
 
 
+# Connect user via Google login
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     if request.args.get('state') != login_session['state']:
