@@ -1,12 +1,13 @@
 from flask import Flask, render_template, url_for, request, redirect, flash, \
 jsonify, session as login_session, make_response, abort
-from helpers import gen_random_string, login_required
+from helpers import gen_random_string
 import random, string, httplib2, json, requests, os
 from db_setup import Base, User, Item
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
+from functools import wraps
 
 CLIENT_ID = json.loads(open('client_secret.json', 'r').read())\
 ['web']['client_id']
@@ -21,6 +22,16 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+# helpers
+def login_required(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        state = setState()
+        if 'logged_in' not in login_session:
+            return redirect(url_for('login', state=state))
+        return func(*args, **kwargs)
+    return decorated_function
+
 def setState():
     valid = (string.ascii_letters, string.digits, ':*&^')
     state = gen_random_string(valid, 32)
@@ -34,23 +45,9 @@ def main():
 
 @app.route('/login', methods=['GET','POST'])
 def login():
-    # session.rollback()
     state = setState()
-
-    if request.method == 'POST':
-        newUser = User(email=request.form['email'], \
-        password=request.form['password'])
-        session.add(newUser)
-        session.commit()
-
-        login_session['email'] = newUser.email
-        login_session['password'] = newUser.password
-        login_session['logged_in'] = True
-        flash('User created successfully')
-        print("user added")
-        return redirect(url_for('catalogHome', state=state))
-    else:
-        return render_template('login.html', state=state)
+    login_session['state'] = state
+    return render_template('login.html', state=state)
 
 @app.route('/logout')
 def logout():
@@ -59,17 +56,16 @@ def logout():
 
 @app.route('/catalog/', methods = ['GET', 'POST'])
 def catalogHome():
-    # state = setState()
-    categories = ['home', 'sports', 'clothing', 'business', 'personal'] #adjust this
+    state = setState()
+    categories = ['home', 'sports', 'clothing', 'business', 'personal']
     allItems = session.query(Item).order_by(desc(Item.added_at)).limit(20).all()
     totalItems = session.query(Item).count()
     return render_template('categories.html', items=allItems, categories= \
-    categories, count=totalItems)
+    categories, count=totalItems, state=state)
 
 @app.route('/catalog/<category>/')
 @app.route('/catalog/<category>/items/')
 def categoryItems(category):
-    # this different endpoint necessary? trying to separate logged in views and general view
     itemsByCategory = session.query(Item).filter_by(category=category).all()
     itemCount = session.query(Item).filter_by(category=category).count()
     return render_template('categories.html', category=category, \
@@ -84,7 +80,7 @@ def itemInfo(category, item_id):
     except Exception as e:
 	    return(str(e))
 
-@app.route('/catalog/item/new', methods=['GET', 'POST']) #took out <category> in link/function, categ=categ in if
+@app.route('/catalog/item/new', methods=['GET', 'POST'])
 @login_required
 def newItem():
     if request.method == 'POST':
@@ -94,12 +90,12 @@ def newItem():
         session.add(itemToAdd)
         session.commit()
         flash('Item added')
-        # return redirect(url_for('categoryItems', item=itemToAdd, category=itemToAdd.category))
         return redirect(url_for('catalogHome'))
     else:
         return render_template('newitem.html')
 
 @app.route('/catalog/<category>/<int:item_id>/edit', methods=['GET', 'POST'])
+@login_required
 def editItem(category, item_id):
     itemToEdit = session.query(Item).filter_by(id=item_id).one()
     if request.method == 'POST':
@@ -118,9 +114,9 @@ def editItem(category, item_id):
         item_id=item_id, category=category)
 
 @app.route('/catalog/<category>/<item_id>/delete', methods=['GET', 'POST'])
+@login_required
 def deleteItem(category, item_id):
     itemToDelete = session.query(Item).filter_by(id=item_id).one()
-    # print('x' + request.method + 'x')
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
