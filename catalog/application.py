@@ -1,7 +1,12 @@
 from flask import Flask, render_template, url_for, request, redirect, flash, \
-jsonify, session as login_session, make_response, abort
+    jsonify, session as login_session, make_response, abort
 from helpers import gen_random_string
-import random, string, httplib2, json, requests, os
+import random
+import string
+import httplib2
+import json
+import requests
+import os
 from db_setup import Base, User, Item
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
@@ -9,28 +14,32 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 from functools import wraps
 
-CLIENT_ID = json.loads(open('client_secret.json', 'r').read())\
-['web']['client_id']
+CLIENT_ID = json.loads(
+    open('client_secret.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Item Catalog"
 
 app = Flask(__name__)
 
-engine = create_engine('sqlite:///itemcatalog.db', \
-connect_args={'check_same_thread': False})
+engine = create_engine('sqlite:///itemcatalog.db',
+                       connect_args={'check_same_thread': False})
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 # helpers
+
+
 def login_required(func):
     @wraps(func)
     def decorated_function(*args, **kwargs):
         state = setState()
         if 'logged_in' not in login_session:
+            login_session['state'] = state
             return redirect(url_for('login', state=state))
         return func(*args, **kwargs)
     return decorated_function
+
 
 def setState():
     valid = (string.ascii_letters, string.digits, ':*&^')
@@ -38,61 +47,80 @@ def setState():
     login_session['state'] = state
     return state
 
+
 @app.route('/')
 def main():
     return render_template('base.html')
 
-@app.route('/login', methods=['GET','POST'])
+
+@app.route('/login')
 def login():
     state = setState()
     login_session['state'] = state
     return render_template('login.html', state=state)
+
 
 @app.route('/logout')
 def logout():
     login_session.pop('logged_in', None)
     return redirect(url_for('main'))
 
-@app.route('/catalog/', methods = ['GET', 'POST'])
+
+@app.route('/catalog/', methods=['GET', 'POST'])
 def catalogHome():
     state = setState()
     categories = ['home', 'sports', 'clothing', 'business', 'personal']
-    allItems = session.query(Item).order_by(desc(Item.added_at)).limit(20).all()
+    allItems = session.query(Item).order_by(
+        desc(Item.added_at)).limit(20).all()
     totalItems = session.query(Item).count()
-    return render_template('categories.html', items=allItems, categories= \
-    categories, count=totalItems, state=state)
+    return render_template('categories.html',
+                           items=allItems,
+                           categories=categories,
+                           count=totalItems,
+                           state=state)
+
 
 @app.route('/catalog/<category>/')
 @app.route('/catalog/<category>/items/')
 def categoryItems(category):
     itemsByCategory = session.query(Item).filter_by(category=category).all()
     itemCount = session.query(Item).filter_by(category=category).count()
-    return render_template('categories.html', category=category, \
-    items=itemsByCategory, count=itemCount)
+    return render_template('categories.html',
+                           category=category,
+                           items=itemsByCategory,
+                           count=itemCount)
+
 
 @app.route('/catalog/<category>/<int:item_id>')
 def itemInfo(category, item_id):
     try:
         item = session.query(Item).filter_by(id=item_id).one()
         if item:
-            return render_template('show_item.html', category=category, item=item)
+            return render_template('show_item.html',
+                                   category=category,
+                                   item=item)
     except Exception as e:
-	    return(str(e))
+        return(str(e))
+
 
 @app.route('/catalog/item/new', methods=['GET', 'POST'])
 @login_required
 def newItem():
     state = setState()
     if request.method == 'POST':
-        itemToAdd = Item(name=request.form['name'], \
-        category=request.form['categories'], description=\
-        request.form['description'])
+        itemToAdd = Item(name=request.form['name'],
+                         category=request.form['categories'],
+                         description=request.form['description'],
+                         user_email=login_session['email'])
         session.add(itemToAdd)
         session.commit()
         flash('Item added')
-        return redirect(url_for('categoryItems', category=itemToAdd.category, state=state))
+        return redirect(url_for('categoryItems',
+                                category=itemToAdd.category,
+                                state=state))
     else:
         return render_template('newitem.html', state=state)
+
 
 @app.route('/catalog/<category>/<int:item_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -100,6 +128,9 @@ def editItem(category, item_id):
     state = setState()
     itemToEdit = session.query(Item).filter_by(id=item_id).one()
     if request.method == 'POST':
+        if itemToEdit.user_email != login_session['email']:
+            flash("You are not authorized to edit this item. Please login")
+            return redirect(url_for('login', state=state))
         if request.form['name']:
             itemToEdit.name = request.form['name']
         if request.form['categories']:
@@ -109,10 +140,15 @@ def editItem(category, item_id):
         session.add(itemToEdit)
         session.commit()
         flash('Updated item info')
-        return redirect(url_for('categoryItems', category=category, state=state))
+        return redirect(url_for('categoryItems',
+                        category=category, state=state))
     else:
-        return render_template('edit_item.html', item=itemToEdit, \
-        item_id=item_id, category=category, state=state)
+        return render_template('edit_item.html',
+                               item=itemToEdit,
+                               item_id=item_id,
+                               category=category,
+                               state=state)
+
 
 @app.route('/catalog/<category>/<item_id>/delete', methods=['GET', 'POST'])
 @login_required
@@ -120,17 +156,27 @@ def deleteItem(category, item_id):
     state = setState()
     itemToDelete = session.query(Item).filter_by(id=item_id).one()
     if request.method == 'POST':
+        if itemToDelete.user_email != login_session['email']:
+            flash("You are not authorized to delete this item. Please login")
+            return redirect(url_for('login', state=state))
         session.delete(itemToDelete)
         session.commit()
         flash('Item deleted')
-        return redirect(url_for('categoryItems', category=category, state=state))
+        return redirect(url_for('categoryItems', category=category,
+                                state=state))
     else:
-        return render_template('delete_item.html', item=itemToDelete, item_id=item_id, category=category, state=state)
+        return render_template('delete_item.html',
+                               item=itemToDelete,
+                               item_id=item_id,
+                               category=category,
+                               state=state)
+
 
 @app.route('/catalog.json/')
 def jsonCatalog():
     items = session.query(Item).all()
     return jsonify(Items=[i.serialize for i in items])
+
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
@@ -182,8 +228,8 @@ def gconnect():
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(json.dumps('Current user is '
+                                            'already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         login_session['logged_in'] = True
         return response
@@ -210,15 +256,18 @@ def gconnect():
     flash("you are now logged in as %s" % login_session['username'])
     return output
 
+
 @app.route('/gdisconnect')
 def gdisconnect():
     access_token = login_session.get('access_token')
     if access_token is None:
-        response = make_response(json.dumps('Current user not connected.'), 401)
+        response = make_response(json.dumps(
+            'Current user not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
 
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
+    url = 'https://accounts.google.com/o/oauth2/revoke?token'
+    '=%s' % login_session['access_token']
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
 
@@ -229,11 +278,15 @@ def gdisconnect():
         del login_session['email']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
-        return response
+        login_session.pop('logged_in', None)
+        flash("Successfully logged out")
+        return redirect(url_for('main'))
     else:
-        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+        response = make_response(json.dumps(
+            'Failed to revoke token for given user.', 400))
         response.headers['Content-Type'] = 'application/json'
         return response
+
 
 if __name__ == '__main__':
     app.secret_key = os.urandom(12)
