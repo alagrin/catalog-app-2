@@ -27,11 +27,13 @@ To view the categories or items in the database the user doesn't need to be logg
 ## Getting Started
 
 - Install Vagrant and VirtualBox
+- Grab a Google OAuth client_secret file to make sure OAuth will run upon adding/editing/deleting items
 - Clone the Vagrantfile
 - Clone this repo into the vagrant directory
 - Run `vagrant up` and then `vagrant ssh` to start up the VM
 - From the catalog-project directory run `sudo pip install -r requirements`
-- run application using `python catalog/application.py`
+- Run `python catalog/db_setup.py` to create the database
+- Run application using `python catalog/application.py`
 - go to `http://localhost/8000` on your browser to run the application
 
 ## Known issues
