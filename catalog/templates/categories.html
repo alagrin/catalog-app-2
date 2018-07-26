@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}{{category}} (Public Items){% endblock %}
+
 {% block head %}
   {{ super() }}
   <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
@@ -8,7 +9,7 @@
 
 {% block content %}
 <div class="container">
-    <a href='{{ url_for('newItem', category=category) }}'>New Item</a> <!-- if logged in -->
+    <a href='{{ url_for('newItem', category=category) }}'>New Item</a>
 </div>
 <div id="categories">
     {% if category %}
@@ -26,9 +27,8 @@
     <h3>Latest Items ({{count}})</h3>
     <ul class="list-unstyled">
         {% for item in items %}
-        <li><a href='{{ url_for('itemInfo', item_id=item.id, category=item.category) }}'>{{item.name}}</a>({{item.category}})</li>
+        <li><a href='{{ url_for('itemInfo', item_id=item.id, category=item.category) }}'>{{item.name}}</a></li>
         {% endfor %}
     </ul>
-</div>
 </div>
 {% endblock %}

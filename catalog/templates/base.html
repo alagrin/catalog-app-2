@@ -11,7 +11,7 @@
   {% endblock %}
 </head>
 <div class="nav bg-info">
-  <h1 id="title"><a class="text-white" href="/">Catalog App</a></h1>
+  <h1 id="title"><a class="text-white" href="/catalog">Catalog App</a></h1>
   <div id="loginBtn">
     {% if session['logged_in'] %}
       <a class="btn btn-danger float-right" href="{{ url_for('logout') }}">Log Out</a>

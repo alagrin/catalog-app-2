@@ -40,8 +40,7 @@ def setState():
 
 @app.route('/')
 def main():
-    state = setState()
-    return render_template('base.html', state=state)
+    return render_template('base.html')
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -83,6 +82,7 @@ def itemInfo(category, item_id):
 @app.route('/catalog/item/new', methods=['GET', 'POST'])
 @login_required
 def newItem():
+    state = setState()
     if request.method == 'POST':
         itemToAdd = Item(name=request.form['name'], \
         category=request.form['categories'], description=\
@@ -90,13 +90,14 @@ def newItem():
         session.add(itemToAdd)
         session.commit()
         flash('Item added')
-        return redirect(url_for('catalogHome'))
+        return redirect(url_for('categoryItems', category=itemToAdd.category, state=state))
     else:
-        return render_template('newitem.html')
+        return render_template('newitem.html', state=state)
 
 @app.route('/catalog/<category>/<int:item_id>/edit', methods=['GET', 'POST'])
 @login_required
 def editItem(category, item_id):
+    state = setState()
     itemToEdit = session.query(Item).filter_by(id=item_id).one()
     if request.method == 'POST':
         if request.form['name']:
@@ -108,22 +109,23 @@ def editItem(category, item_id):
         session.add(itemToEdit)
         session.commit()
         flash('Updated item info')
-        return redirect(url_for('categoryItems', category=category))
+        return redirect(url_for('categoryItems', category=category, state=state))
     else:
         return render_template('edit_item.html', item=itemToEdit, \
-        item_id=item_id, category=category)
+        item_id=item_id, category=category, state=state)
 
 @app.route('/catalog/<category>/<item_id>/delete', methods=['GET', 'POST'])
 @login_required
 def deleteItem(category, item_id):
+    state = setState()
     itemToDelete = session.query(Item).filter_by(id=item_id).one()
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
         flash('Item deleted')
-        return redirect(url_for('categoryItems', category=category))
+        return redirect(url_for('categoryItems', category=category, state=state))
     else:
-        return render_template('delete_item.html', item=itemToDelete, item_id=item_id, category=category)
+        return render_template('delete_item.html', item=itemToDelete, item_id=item_id, category=category, state=state)
 
 @app.route('/catalog.json/')
 def jsonCatalog():
